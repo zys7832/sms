@@ -1,0 +1,14 @@
+<div class="form-group">
+    <label class="col-md-3 control-label">{{ field.verbose_name }}</label>
+
+    <div class="col-md-9">
+        <div class="radio-list">
+            <label class="radio-inline">
+                <input type="radio" name="{{ field.name }}" id="{{ field.name }}_none" value="None" checked> 忽略 </label>
+            <label class="radio-inline">
+                <input type="radio" name="{{ field.name }}" id="{{ field.name }}_yes" value="true"> 是 </label>
+            <label class="radio-inline">
+                <input type="radio" name="{{ field.name }}" id="{{ field.name }}_no" value="false"> 否 </label>
+        </div>
+    </div>
+</div>

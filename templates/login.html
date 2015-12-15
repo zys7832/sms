@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<!-- 
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.3.5
+Version: 3.3.0
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Follow: www.twitter.com/keenthemes
+Like: www.facebook.com/keenthemes
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+<meta charset="utf-8"/>
+<title>Metronic | Login Options - Login Form 1</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<!-- BEGIN GLOBAL MANDATORY STYLES
+<link href="http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css"/> -->
+<link href="/static/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="/static/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css"/>
+<link href="/static/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="/static/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+<!-- END GLOBAL MANDATORY STYLES -->
+<!-- BEGIN PAGE LEVEL STYLES -->
+<link href="/static/assets/admin/pages/css/login.css" rel="stylesheet" type="text/css"/>
+<!-- END PAGE LEVEL SCRIPTS -->
+<!-- BEGIN THEME STYLES -->
+<link href="/static/assets/global/css/components.css" id="style_components" rel="stylesheet" type="text/css"/>
+<link href="/static/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+<link href="/static/assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
+<link href="/static/assets/admin/layout/css/themes/darkblue.css" rel="stylesheet" type="text/css" id="style_color"/>
+<link href="/static/assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
+<!-- END THEME STYLES -->
+<link rel="shortcut icon" href="favicon.ico"/>
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<body class="login">
+<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+<div class="menu-toggler sidebar-toggler">
+</div>
+<!-- END SIDEBAR TOGGLER BUTTON -->
+<!-- BEGIN LOGO -->
+<div class="logo">
+	<a href="index.html">
+	<img src="/static/assets/admin/layout/img/logo-big.png" alt=""/>
+	</a>
+</div>
+<!-- END LOGO -->
+<!-- BEGIN LOGIN -->
+<div class="content">
+	<!-- BEGIN LOGIN FORM -->
+	<form class="login-form" action="index.html" method="post">
+        {% csrf_token %}
+		<h3 class="form-title">登陆应用管理系统</h3>
+		<div class="alert alert-danger display-hide">
+			<button class="close" data-close="alert"></button>
+			<span>
+			输入用户名称和密码. </span>
+		</div>
+		<div class="form-group">
+			<!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
+			<label class="control-label visible-ie8 visible-ie9">用户名称</label>
+			<input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="用户名称" name="username"/>
+		</div>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">用户密码</label>
+			<input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="用户密码" name="password"/>
+		</div>
+		<div class="form-actions">
+			<button type="submit" class="btn btn-success uppercase">确定</button>
+			<label class="rememberme check">
+			<input type="checkbox" name="remember" value="1"/>记住我 </label>
+			<a href="javascript:;" id="forget-password" class="forget-password">忘记密码?</a>
+		</div>
+		<div class="login-options">
+			<h4>使用如下帐号登陆</h4>
+			<ul class="social-icons">
+				<li>
+					<a class="social-icon-color facebook" data-original-title="facebook" href="javascript:;"></a>
+				</li>
+				<li>
+					<a class="social-icon-color twitter" data-original-title="Twitter" href="javascript:;"></a>
+				</li>
+				<li>
+					<a class="social-icon-color googleplus" data-original-title="Goole Plus" href="javascript:;"></a>
+				</li>
+				<li>
+					<a class="social-icon-color linkedin" data-original-title="Linkedin" href="javascript:;"></a>
+				</li>
+			</ul>
+		</div>
+		<div class="create-account">
+			<p>
+				<a href="javascript:;" id="register-btn" class="uppercase">创建新用户</a>
+			</p>
+		</div>
+	</form>
+	<!-- END LOGIN FORM -->
+	<!-- BEGIN FORGOT PASSWORD FORM -->
+	<form class="forget-form" action="index.html" method="post">
+		<h3>忘记密码了吗?</h3>
+		<p>
+			 请使用注册时使用的邮箱地址重置密码.
+		</p>
+		<div class="form-group">
+			<input class="form-control placeholder-no-fix" type="text" autocomplete="off" placeholder="Email" name="email"/>
+		</div>
+		<div class="form-actions">
+			<button type="button" id="back-btn" class="btn btn-default">返回</button>
+			<button type="submit" class="btn btn-success uppercase pull-right">确定</button>
+		</div>
+	</form>
+	<!-- END FORGOT PASSWORD FORM -->
+	<!-- BEGIN REGISTRATION FORM -->
+	<form class="register-form" action="index.html" method="post">
+		<h3>注册新用户</h3>
+		<p class="hint">
+			 请如实输入个人的详细信息:
+		</p>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">真实姓名</label>
+			<input class="form-control placeholder-no-fix" type="text" placeholder="真实姓名" name="first_name"/>
+		</div>
+        <div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">身份证号</label>
+			<input class="form-control placeholder-no-fix" type="text" placeholder="身份证号" name="sfzjh"/>
+		</div>
+		<div class="form-group">
+			<!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
+			<label class="control-label visible-ie8 visible-ie9">邮箱</label>
+			<input class="form-control placeholder-no-fix" type="text" placeholder="邮箱" name="email"/>
+		</div>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">学校</label>
+			<select name="school" class="form-control" id="school">
+				<option value="" selected>选择学校</option>
+                {% for school in schools %}
+                    <option value="{{ school.id }}">{{ school.xxmc }}</option>
+                {% endfor %}
+			</select>
+		</div>
+        <div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">年级</label>
+			<select name="grade" class="form-control" id="grade">
+				<option value="">Country</option>
+				<option value="AF">Afghanistan</option>
+				<option value="AL">Albania</option>
+				<option value="DZ">Algeria</option>
+				<option value="AS">American Samoa</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">班级</label>
+			<select name="klass" class="form-control" id="klass">
+				<option value="">Country</option>
+				<option value="AF">Afghanistan</option>
+				<option value="AL">Albania</option>
+				<option value="DZ">Algeria</option>
+				<option value="AS">American Samoa</option>
+			</select>
+		</div>
+		<p class="hint">
+			 在下面输入账户详细信息:
+		</p>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">登陆名称</label>
+			<input class="form-control placeholder-no-fix" type="text" autocomplete="off" placeholder="登陆名称" name="username"/>
+		</div>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">登陆密码</label>
+			<input class="form-control placeholder-no-fix" type="password" autocomplete="off" id="register_password" placeholder="登陆密码" name="password"/>
+		</div>
+		<div class="form-group">
+			<label class="control-label visible-ie8 visible-ie9">再次输入登陆密码</label>
+			<input class="form-control placeholder-no-fix" type="password" autocomplete="off" placeholder="再次输入登陆密码" name="rpassword"/>
+		</div>
+		<div class="form-group margin-top-20 margin-bottom-20">
+			<label class="check">
+			<input type="checkbox" name="tnc"/> 我同意 <a href="javascript:;">
+			最终服务协议 </a>
+			& <a href="javascript:;">
+			安全策略 </a>
+			</label>
+			<div id="register_tnc_error">
+			</div>
+		</div>
+		<div class="form-actions">
+			<button type="button" id="register-back-btn" class="btn btn-default">返回</button>
+			<button type="submit" id="register-submit-btn" class="btn btn-success uppercase pull-right">确定</button>
+		</div>
+	</form>
+	<!-- END REGISTRATION FORM -->
+</div>
+<div class="copyright">
+	 2014 © Metronic. Admin Dashboard Template.
+</div>
+<!-- END LOGIN -->
+<!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+<!-- BEGIN CORE PLUGINS -->
+<!--[if lt IE 9]>
+<script src="/static/assets/global/plugins/respond.min.js"></script>
+<script src="/static/assets/global/plugins/excanvas.min.js"></script> 
+<![endif]-->
+<script src="/static/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/jquery-migrate.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<script src="/static/assets/admin/pages/scripts/csrf.js" type="text/javascript"></script>
+<script src="/static/assets/admin/pages/scripts/bootbox.min.js" type="text/javascript"></script>
+<!-- END CORE PLUGINS -->
+<!-- BEGIN PAGE LEVEL PLUGINS -->
+<script src="/static/assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
+<script src="/static/assets/admin/pages/scripts/validate_chinese.js" type="text/javascript"></script>
+<script src="/static/assets/admin/pages/scripts/myvalidator.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL PLUGINS -->
+<!-- BEGIN PAGE LEVEL SCRIPTS -->
+<script src="/static/assets/global/scripts/metronic.js" type="text/javascript"></script>
+<script src="/static/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
+<script src="/static/assets/admin/layout/scripts/demo.js" type="text/javascript"></script>
+<script src="/static/assets/admin/pages/scripts/login.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL SCRIPTS -->
+<script>
+jQuery(document).ready(function() {     
+Metronic.init(); // init metronic core components
+Layout.init(); // init current layout
+Login.init();
+Demo.init();
+});
+</script>
+</body>
+
+<!-- END BODY -->
+</html>

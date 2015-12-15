@@ -1,0 +1,78 @@
+<div class="form-group">
+    <label class="col-md-3 control-label">{{ field_verbose_name1 }}</label>
+    <div class="col-md-9">
+        <select class="form-control select2me" name="{{ field_name1 }}" id="foreign_key_{{ field_name1 }}">
+            <option value="" selected>忽略</option>
+            {% for option in options %}
+                <option value="{{ option.id }}">{{ option.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">{{ field_verbose_name2 }}</label>
+    <div class="col-md-9">
+        <select class="form-control select2me" name="{{ field_name2}}" id="foreign_key_{{ field_name2 }}">
+            <option value="" selected>忽略</option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-3 control-label">{{ field_verbose_name3 }}</label>
+    <div class="col-md-9">
+        <select class="form-control select2me" name="{{ field_name3}}" id="foreign_key_{{ field_name3 }}">
+            <option value="" selected>忽略</option>
+        </select>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#foreign_key_{{ field_name1 }}').change(function(event){
+        var
+                foreign_key_{{ field_name1 }}_val = $(this).val(),
+                $foreign_key_{{ field_name2 }} = $('#foreign_key_{{ field_name2 }}')
+                $foreign_key_{{ field_name3 }} = $('#foreign_key_{{ field_name3 }}')
+
+        $foreign_key_{{ field_name2 }}.find("option").remove()
+        $('div#s2id_foreign_key_{{ field_name2 }} span.select2-chosen').html('')
+        $foreign_key_{{ field_name3 }}.find("option").remove()
+        $('div#s2id_foreign_key_{{ field_name3 }} span.select2-chosen').html('')
+        if (foreign_key_{{ field_name1 }}_val==='') {
+            return
+        }
+
+        $.ajax({
+            url : '/items/{{ model2.path }}/{{ role_name }}/?parent_model={{ model1.path }}&parent_id='+ foreign_key_{{ field_name1 }}_val,
+            success : function(response){
+                $foreign_key_{{ field_name2 }}.append('<option value="" selected>忽略</option>')
+                for (var index in response){
+                    $foreign_key_{{ field_name2 }}.append('<option value="'+response[index].id +'">' + response[index].name + '</option>')
+                }
+            }
+        })
+    })
+
+    $('#foreign_key_{{ field_name2 }}').change(function(event){
+        var
+                foreign_key_{{ field_name2 }}_val = $(this).val(),
+                $foreign_key_{{ field_name3 }} = $('#foreign_key_{{ field_name3 }}')
+
+        $foreign_key_{{ field_name3 }}.find("option").remove()
+        $('div#s2id_foreign_key_{{ field_name3 }} span.select2-chosen').html('')
+        if (foreign_key_{{ field_name2 }}_val==='') {
+            return
+        }
+
+        $.ajax({
+            url : '/items/{{ model3.path }}/{{ role_name }}/?parent_model={{ model2.path }}&parent_id='+ foreign_key_{{ field_name2 }}_val,
+            success : function(response){
+                $foreign_key_{{ field_name3 }}.append('<option value="" selected>忽略</option>')
+                for (var index in response){
+                    $foreign_key_{{ field_name3 }}.append('<option value="'+response[index].id +'">' + response[index].name + '</option>')
+                }
+            }
+        })
+    })
+</script>
