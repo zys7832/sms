@@ -27,6 +27,20 @@ class MetroModel(MetroModelBase):
     #将一条记录序列化为id,text字典
 
     primary_key_name = u'id'
+    xuexiao_field_name = u'xx'
+
+    #根据角色过滤数据，不同角色需要改写该方法
+    @classmethod
+    def filter(cls,request):
+        return cls.objects.all()
+
+    @classmethod
+    def ajax_tree_items(cls,request,role,field):
+        return {
+            u'id':'',
+            u'text':u'%s对象还没有实现读取节点的方法。'%cls.path(),
+            u'children':True
+        }
 
     def item(self):
         return {u"id":getattr(self,self.primary_key_name),u"name":unicode(self)}
@@ -66,6 +80,7 @@ class MetroModel(MetroModelBase):
             u'search_fields' : cls.search_fields(request),
             u'columns' : cls.fields(request),
             u'edits' : cls.edit_fields(request),
+            u'actions' : cls.actions_to_model(request),
             u'model_name' : model_name,
             u'role_name' : role_name
         })
@@ -73,7 +88,8 @@ class MetroModel(MetroModelBase):
     field_names = []
     edit_field_names = []
     search_field_names = []
-
+    action_names = [u'create',u'edit',u'remove',u'copy',u'excel',u'pdf',u'print',u'search']
+    do_action_list = [u'create',u'edit',u'remove']
     @classmethod
     def fields(cls,request):
         _fields = cls._meta.fields + cls._meta.many_to_many
@@ -93,6 +109,16 @@ class MetroModel(MetroModelBase):
             if name==u'id':
                 continue
             if isinstance(name,dict):
+                params = name.copy()
+                if params.has_key(u'edit_class'):
+                    edit_class = params.pop(u'edit_class')
+                    result.append(edit_class(**params))
+                elif params.has_key(u'field_name'):
+                    field  = cls._meta.get_field_by_name(params.pop(u'field_name'))[0]
+                    edit_class = getattr(base,u'Edit%s'%field.__class__.__name__)
+                    params[u'request'] = request
+                    params[u'field'] = field
+                    result.append(edit_class(**params))
                 pass
             elif isinstance(name,(unicode,str)):
                 field = cls._meta.get_field_by_name(name)[0]
@@ -122,6 +148,14 @@ class MetroModel(MetroModelBase):
                 field = item
                 search_class = getattr(base,u'Search%s'%field.__class__.__name__)
                 result.append(search_class(request,field))
+
+        return result
+
+    @classmethod
+    def actions_to_model(cls,request):
+        result = []
+        for action in cls.action_names:
+            result.append(base.ActionModel(request,cls,action,action.title()))
 
         return result
 
@@ -179,6 +213,11 @@ class MetroModel(MetroModelBase):
     #数据表操作接口，在视图中根据参数调用add,edit,delete执行具体操作
     @classmethod
     def do_action(cls,request):
+        action = request.POST.get(u'action')
+
+        if not action in (u'create',u'edit',u'remove'):
+            return getattr(cls,u'do_action_%s'%action)(request)
+
         def pk():
             for k in request.POST.keys():
                 try:
@@ -188,7 +227,7 @@ class MetroModel(MetroModelBase):
             return None
 
         obj = cls()
-        action = request.POST.get(u'action')
+
         if action==u'remove':
             pass
             return {u'data':[]}
@@ -206,9 +245,25 @@ class MetroModel(MetroModelBase):
                 continue
             field.setattr(obj,ID)
 
-        obj.save()
+        obj.save1(request=request)
         for field in many_to_many_fields:
             field.setattr(obj,ID)
             obj.save()
 
         return cls.rows(request,[obj])
+
+    def save1(self, force_insert=False, force_update=False, using=None,update_fields=None,request=None):
+        model = self.__class__
+        try:
+            model._meta.get_field_by_name(self.xuexiao_field_name)
+            try:
+                xx_value = getattr(self,self.xuexiao_field_name)
+            except:
+                xx_value = None
+            xx = request.user.xx
+            if xx_value is None and xx is not None:
+                setattr(self,self.xuexiao_field_name,xx)
+        except:
+            pass
+        self.save(force_insert=force_insert,force_update=force_update,using=using,update_fields=update_fields)
+        pass

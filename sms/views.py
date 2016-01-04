@@ -90,6 +90,7 @@ def validator(request,path,field):
     q = db_models.Q()
     q.children.append((field,value))
     count = model.objects.filter(q).count()
+    #return http.HttpResponse(u"true")
     return http.HttpResponse(u"true" if count==0 else u"false")
 
 def register_user(request):
@@ -159,13 +160,13 @@ def page(request,path,role=None):
 def datas(request,path,role):
     model = loader.load_member(request,path,role)
     records = model.datas(request)
-    return http.HttpResponse(json.dumps(records),content_type="application/json")
+    return http.HttpResponse(json.dumps(records),content_type=u"application/json")
 
 
 def action(request,path,role):
     model = loader.load_member(request,path,role)
     result = model.do_action(request)
-    return http.HttpResponse(json.dumps(result),content_type="application/json")
+    return http.HttpResponse(json.dumps(result),content_type=u"application/json")
 
 def items(request,path,role):
     model = loader.load_member(request,path,role)
@@ -184,4 +185,9 @@ def items(request,path,role):
         except Exception as e:
             records = []
     records = model.items(records)
-    return http.HttpResponse(json.dumps(records),content_type="application/json")
+    return http.HttpResponse(json.dumps(records),content_type=u"application/json")
+
+def ajax_tree_items(request,path,role,field):
+    model = loader.load_member(request,path,role)
+    result = model.ajax_tree_items(request,role,field)
+    return http.HttpResponse(json.dumps(result),content_type=u"application/json")

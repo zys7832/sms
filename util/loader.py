@@ -51,7 +51,7 @@ def load_member(request,path,role=None):
 
 #当不提供完整字符路径时在这个字典中查找
 models = {
-    u"user" : User
+    u"User" : User
 }
 
 def load_model(path):

@@ -72,7 +72,7 @@
 </div>
 
 <script type="text/javascript">
-    var editor,validater; // use a global for the submit and return data rendering in the examples
+    var editor,validater,mytable; // use a global for the submit and return data rendering in the examples
     var current_page = null
     var get = function () {
         editor = new $.fn.dataTable.Editor({
@@ -149,7 +149,7 @@
         if (current_page) {
             post_data['currentPage'] = current_page
         }
-        var table = $('#example').DataTable({
+        mytable = table = $('#example').DataTable({
             lengthChange: false,
             ajax: {
                 url: "/datas/{{ model_name }}/{{ role_name }}/",
@@ -159,7 +159,9 @@
             columns: [
                 {% for column in columns %}{{ column.render | safe }}{% if forloop.last %}{% else %},{% endif %}{% endfor %}
             ],
-            select: true
+            select: {
+                style:'single'
+            }
         });
 
         // Display the buttons
@@ -171,6 +173,7 @@
 
         table.buttons().container()
                 .appendTo($('.col-sm-6:eq(0)', table.table().container()));
+
 
         table.on('xhr', function () {
             var json = table.ajax.json();
@@ -187,6 +190,10 @@
                     }
                 });
             }
+        }).on( 'select', function ( e, dt, type, indexes ){
+            table.buttons( '.daorukaosheng' ).enable();
+        }).on( 'deselect', function ( e, dt, type, indexes ){
+            table.buttons( '.daorukaosheng' ).disable();
         });
     }
     $(function () {

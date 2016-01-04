@@ -1,0 +1,1 @@
+{ extend: "create", editor: editor }

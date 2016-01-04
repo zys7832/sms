@@ -44,10 +44,13 @@ class ColumnCharField(ColumnField):
 class ColumnMyCharField(ColumnCharField):
     pass
 
+class ColumnMySfzjhCharField(ColumnCharField):
+    pass
+
 class ColumnDateField(ColumnField):
     def data(self,obj):
-        return getattr(obj,self.name)
-    pass
+        return unicode(getattr(obj,self.name))
+
 
 class ColumnDateTimeField(ColumnDateField):
     pass
@@ -114,10 +117,16 @@ class ColumnForeignKey(ColumnField):
         return json.dumps({u"data" : u"%s.name"%self.name})
 
     def data(self,obj):
-        value = getattr(obj,self.name)
-        return value.item()
+        try:
+            value = getattr(obj,self.name)
+            return value.item()
+        except:
+            return {u'id':u'',u'name':u''}
 
 class ColumnTreeForeignKey(ColumnForeignKey):
+    pass
+
+class ColumnMyAjaxTreeForeignKey(ColumnTreeForeignKey):
     pass
 
 class ColumnManyToManyField(ColumnField):
@@ -143,6 +152,7 @@ class SearchField(object):
     def __init__(self,request,field):
         self.request = request
         self.field = field
+        self.role_name = self.request.path.split(u'/')[-2]
 
     @property
     def template(self):
@@ -198,6 +208,9 @@ class SearchCharField(SearchField):
 
 
 class SearchMyCharField(SearchCharField):
+    pass
+
+class SearchMySfzjhCharField(SearchMyCharField):
     pass
 
 class SearchDateField(SearchField):
@@ -264,11 +277,50 @@ class SearchURLField(SearchCharField):
     pass
 
 class SearchForeignKey(SearchField):
-    def render(self):
-        return {u'data' : u'%s.name'%self.name}
+    @property
+    def context(self):
+        main_model_by_role = load_member(self.request,self.field.rel.to.path(),self.role_name)
+        records = main_model_by_role.objects.all()
+        records = main_model_by_role.items(records)
+        return Context({
+            u'request' : self.request,
+            u'field' : self.field,
+            u'options' : records
+        })
+
+    def search(self,records):
+        value = self.request.POST.get(self.field.name)
+        if value:
+            try:
+                method = getattr(self.field.model,u'searchforeignkey_%s'%self.field.name)
+                records = method(self.request,records)
+            except:
+                q = dmodels.Q()
+                q.children.append((u'%s__pk'%self.field.name,value))
+                records = records.filter(q)
+
+        return records
 
 class SearchTreeForeignKey(SearchForeignKey):
-    pass
+    @property
+    def context(self):
+        #return super(SearchTreeForeignKey,self).context
+        return Context({
+            u'request' : self.request,
+            u'field' : self.field,
+            u'items' : json.dumps(self.field.rel.to.nodes())
+        })
+
+class SearchMyAjaxTreeForeignKey(SearchTreeForeignKey):
+    @property
+    def context(self):
+        model_path = self.field.rel.to.path() if self.field.get_tree_item_from_field_to else self.field.model.path()
+        return Context({
+            u'request' : self.request,
+            u'field' : self.field,
+            u'ajax_url' : u'/ajax_tree_items/%s/%s/%s/'%(model_path,self.role_name,self.name)
+        })
+
 
 class SearchForeignKey2(SearchField):
     def __init__(self,request,main_model,model1,model2,field_name1,field_name2):
@@ -374,15 +426,20 @@ class SearchForeignKey3(SearchForeignKey2):
 
 
 class EditField(BaseField):
-    def __init__(self,request,field):
+    def __init__(self,request,field,editable=True,unique=False,**kwargs):
         super(EditField,self).__init__(request,field)
         self.role_name = request.path.split(u'/')[-2]
+        self.editable = not self.field.unique if editable else False #editable
+        self.kwargs = kwargs
+        self.__unique = True if unique else field.unique
 
     def render(self):
         result = {}
         result[u'label'] = u'%s'%self.field.verbose_name
         result[u'name'] = self.name
         result[u'type'] = u'mtext'
+        result[u'editable'] = self.editable
+        result[u'rules'] = self.rules()
         return json.dumps(result)
 
     def key(self,pk):
@@ -401,15 +458,21 @@ class EditField(BaseField):
     def unique(self):
         result = {u'type':u'get'}
         result[u'url'] = u'/validator/%s/%s/'%(self.field.model.path(),self.name)
+        result[u'cache'] = False
+        result[u'async'] = False
         return result
 
     def rules(self):
         result = {}
-        if self.required:
+        if self.required():
             result[u'required'] = True
-        if self.field.unique:
+        if self.__unique:
             result[u'remote']  = self.unique()
         return result
+
+    @property
+    def rule_name(self):
+        return self.name
 
     def validate_rules(self):
         return json.dumps(self.rules())
@@ -420,6 +483,8 @@ class EditBooleanField(EditField):
         result[u'label'] = u'%s'%self.field.verbose_name
         result[u'name'] = self.field.name
         result[u'type'] = u'mradio'
+        result[u'rules'] = self.rules()
+        result[u'editable'] = self.editable
         result[u'options'] = [
             {u'label':u'是',u'value':True},
             {u'label':u'否',u'value':False}
@@ -443,6 +508,9 @@ class EditCharField(EditField):
         result[u'maxlength']  = self.max_length()
         return result
 
+    def required(self):
+        return not self.field.blank
+
 class EditMyCharField(EditCharField):
     def equalto(self):
         return self.field.to_field
@@ -458,13 +526,25 @@ class EditMyCharField(EditCharField):
             result[u'equalTo'] = u'#%s'%self.name
         return result
 
+class EditMySfzjhCharField(EditCharField):
+    def rules(self):
+        result = super(EditMySfzjhCharField,self).rules()
+        result[u'isidcardno'] = True
+        return result
+
 class EditDateField(EditField):
-    def render(self):
+    def build_render(self):
         result = {}
         result[u'label'] = u'%s'%self.field.verbose_name
         result[u'name'] = self.field.name
-        result[u'type'] = u'datetime'
-        return json.dumps(result)
+        result[u'type'] = u'mdate'
+        result[u'rules'] = self.rules()
+        result[u'editable'] = self.editable
+
+        return result
+
+    def render(self):
+        return json.dumps(self.build_render())
 
     def data(self,obj):
         return unicode(getattr(obj,self.name))
@@ -478,7 +558,19 @@ class EditDateField(EditField):
         return result
 
 class EditDateTimeField(EditDateField):
-    pass
+    def build_render(self):
+        result = super(EditDateTimeField,self).build_render()
+        result[u'type'] = u'mdatetime'
+        return result
+
+    def rules(self):
+        result = super(EditDateTimeField,self).rules()
+        try:
+            result.pop(u"date")
+        except:
+            pass
+        result[u'datetime'] = True
+        return result
 
 class EditDecimalField(EditField):
     def number(self):
@@ -548,7 +640,7 @@ class EditIntegerField(EditField):
 
     def rules(self):
         result = super(EditIntegerField,self).rules()
-        result[u'digits'] = self.digits
+        result[u'digits'] = self.digits()
         return result
 
 class EditMyIntegerField(EditIntegerField):
@@ -611,12 +703,18 @@ class EditForeignKey(EditField):
         result[u'label'] = u'%s'%self.field.verbose_name
         result[u'name'] = u'%s.id'%self.field.name
         result[u'type'] = u'mselect'
+        result[u'rules'] = self.rules()
+        result[u'editable'] = self.editable
         result[u'options'] = []
         model = load_member(self.request,self.field.rel.to.path(),self.role_name)
         for record in model.objects.all():
             result[u'options'].append({u'label':unicode(record),u'value':record.id})
 
         return json.dumps(result)
+
+    @property
+    def rule_name(self):
+        return u'%s.id'%self.name
 
 
     def key(self,pk):
@@ -633,7 +731,10 @@ class EditForeignKey(EditField):
             return None
 
     def data(self,obj):
-        value = getattr(obj,self.name)
+        try:
+            value = getattr(obj,self.name)
+        except:
+            value = None
         if value:
             return value.item()
         else:
@@ -644,10 +745,24 @@ class EditTreeForeignKey(EditForeignKey):
         result = {}
         result[u'label'] = u'%s'%self.field.verbose_name
         result[u'name'] = u'%s.id'%self.field.name
-        result[u'type'] = u'treeselect'
+        result[u'type'] = u'treeselect1'
+        result[u'rules'] = self.rules()
+        result[u'editable'] = self.editable
         model = load_member(self.request,self.field.rel.to.path(),self.role_name)
         result[u'items'] = model.nodes()
 
+        return json.dumps(result)
+
+class EditMyAjaxTreeForeignKey(EditForeignKey):
+    def render(self):
+        model_path = self.field.rel.to.path() if self.field.get_tree_item_from_field_to else self.field.model.path()
+        result = {}
+        result[u'label'] = u'%s'%self.field.verbose_name
+        result[u'name'] = u'%s.id'%self.field.name
+        result[u'type'] = u'ajaxtreeselect'
+        result[u'rules'] = self.rules()
+        result[u'editable'] = self.editable
+        result[u'ajax_url'] = u'/ajax_tree_items/%s/%s/%s/'%(model_path,self.role_name,self.name)
         return json.dumps(result)
 
 
@@ -657,6 +772,8 @@ class EditManyToManyField(EditField):
         result[u'label'] = u'%s'%self.field.verbose_name
         result[u'name'] = u'%s[].id'%self.field.name
         result[u'type'] = u'mmselect'
+        result[u'rules'] = self.rules()
+        result[u'editable'] = self.editable
         result[u'options'] = []
         model = load_member(self.request,self.field.rel.to.path(),self.role_name)
         for record in model.objects.all():
@@ -682,3 +799,38 @@ class EditManyToManyField(EditField):
             result.append(record.item())
 
         return result
+
+
+########################################################################################################################
+# Action相关类
+########################################################################################################################
+
+class ActionModel(object):
+    def __init__(self,request,model,action_name,title):
+        self.request = request
+        self.model = model
+        self.action_name = action_name
+        self.title = title
+        self.role_name = request.path.split(u'/')[-2]
+
+    def get_template(self):
+        template_path = u'controls/actions/%s/%s/%s.js'%(self.role_name,self.model.__module__,u'%s_%s'%(self.model.__name__.lower(),self.action_name))
+        try:
+            return loader.get_template(template_path)
+        except:
+            try:
+                return loader.get_template(u'controls/actions/%s.js'%self.action_name)
+            except:
+                return loader.get_template(u'controls/actions/action.js')
+
+    def context(self):
+        return Context({
+            u'request':self.request,
+            u'model' : self.model,
+            u'role_name' : self.role_name,
+            u'title' : self.title,
+            u'extend' : self.action_name
+        })
+
+    def render(self):
+        return self.get_template().render(self.context())

@@ -17,5 +17,6 @@ urlpatterns = patterns('',
     url(r'^action/([\w+\.?]+)/(\w+)/$','sms.views.action',name='action'),
     url(r'^datas/([\w+\.?]+)/(\w+)/$','sms.views.datas',name='datas'),
     url(r'^items/([\w+\.?]+)/(\w+)/$','sms.views.items',name='items'),
+    url(r'^ajax_tree_items/([\w+\.?]+)/(\w+)/(\w+)/$','sms.views.ajax_tree_items',name='ajax_tree_items'),
     url(r'^admin/', include(admin.site.urls))
 )

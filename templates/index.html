@@ -34,6 +34,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <link href="/static/assets/global/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
 <link href="/static/assets/global/plugins/bootstrap-select/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
 
+
 <!-- BEGIN DATATABLES STYLE -->
 <link rel="stylesheet" type="text/css" href="/static/assets/global/plugins/jstree/dist/themes/default/style.min.css"/>
 <link rel="stylesheet" type="text/css" href="/static/assets/global/plugins/datatables/DataTables-1.10.10/css/dataTables.bootstrap.min.css"/>
@@ -51,6 +52,8 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- END GLOBAL MANDATORY STYLES -->
 <!-- BEGIN PAGE LEVEL STYLES -->
 <link rel="stylesheet" type="text/css" href="/static/assets/global/plugins/select2/select2.css"/>
+<link rel="stylesheet" type="text/css" href="/static/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css"/>
+<link rel="stylesheet" type="text/css" href="/static/assets/global/plugins/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css"/>
 <!-- END PAGE LEVEL STYLES -->
 <!-- BEGIN THEME STYLES -->
 <link href="/static/assets/global/css/components.css" id="style_components" rel="stylesheet" type="text/css"/>
@@ -61,18 +64,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <!-- END THEME STYLES -->
 
 <link rel="shortcut icon" href="favicon.ico"/>
-<style>
-    .datepicker {
-        z-index: 9999;
-        top: 0;
-        left: 0;
-        padding: 4px;
-        margin-top: 1px;
-        -webkit-border-radius: 4px;
-        -moz-border-radius: 4px;
-        border-radius: 4px;
-    }
-</style>
+
 </head>
 <!-- END HEAD -->
 <!-- BEGIN BODY -->
@@ -549,6 +541,10 @@ License: You must have a valid license purchased only from themeforest(the above
 						    操作管理</a>
 						</li>
                         <li>
+							<a class="ajaxify" href="/page/accounts.models.Object/s/">
+						    对象管理</a>
+						</li>
+                        <li>
 							<a class="ajaxify" href="/page/accounts.models.GroupAction/s/">
 						    角色-对象-操作-导航位置映射</a>
 						</li>
@@ -558,7 +554,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
-					Ajax Submenu 2 </span>
+					学校基本信息管理</span>
 					<span class="selected">
 					</span>
 					<span class="arrow">
@@ -566,20 +562,28 @@ License: You must have a valid license purchased only from themeforest(the above
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 1 </a>
+							<a class="ajaxify" href="/page/accounts.models.Xuexiao/s/">
+							学校管理</a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 2 </a>
+							<a class="ajaxify" href="/page/accounts.models.Nianji/s/">
+							年及管理 </a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 3 </a>
+							<a class="ajaxify" href="/page/accounts.models.Banji/s/">
+							班级管理 </a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 4 </a>
+							<a class="ajaxify" href="/page/school.models.Kecheng/s/">
+							课程管理</a>
+						</li>
+                        <li>
+							<a class="ajaxify" href="/page/school.models.Xiaoli/s/">
+							校历管理</a>
+						</li>
+                        <li>
+							<a class="ajaxify" href="/page/school.models.Rili/s/">
+							学校日历管理</a>
 						</li>
 					</ul>
 				</li>
@@ -587,7 +591,7 @@ License: You must have a valid license purchased only from themeforest(the above
 					<a href="javascript:;">
 					<i class="fa fa-cogs"></i>
 					<span class="title">
-					Ajax Submenu 3 </span>
+					教务管理</span>
 					<span class="selected">
 					</span>
 					<span class="arrow">
@@ -595,20 +599,36 @@ License: You must have a valid license purchased only from themeforest(the above
 					</a>
 					<ul class="sub-menu">
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 1 </a>
+							<a class="ajaxify" href="/page/school.models.Jiaoxuejihua/s/">
+							教学计划</a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 2 </a>
+							<a class="ajaxify" href="/page/school.models.Jiaoshifengong/s/">
+						    教师分工</a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_2.html">
-							Ajax Link Sample 3 </a>
+							<a class="ajaxify" href="/page/school.models.Paike/s/">
+						    排课</a>
 						</li>
 						<li>
-							<a class="ajaxify" href="layout_ajax_content_3.html">
-							Ajax Link Sample 4 </a>
+							<a class="ajaxify" href="/page/school.models.Jiaoshi/s/">
+							教室管理</a>
+						</li>
+                        <li>
+							<a class="ajaxify" href="/page/school.models.Kaoshi/s/">
+						    考试管理</a>
+						</li>
+                        <li>
+							<a class="ajaxify" href="/page/school.models.Kaoshikemu/s/">
+						    考试科目</a>
+						</li>
+                        <li>
+							<a class="ajaxify" href="/page/school.models.Kaoshikaochang/s/">
+						    考试考场</a>
+						</li>
+                        <li>
+							<a class="ajaxify" href="/page/school.models.Kaosheng/s/">
+						    考生管理</a>
 						</li>
 					</ul>
 				</li>
@@ -1414,6 +1434,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <script src="/static/assets/global/plugins/datatables/Buttons-1.1.0/js/dataTables.buttons.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/Buttons-1.1.0/js/buttons.bootstrap.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/Buttons-1.1.0/js/buttons.flash.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/datatables/Buttons-1.1.0/js/buttons.flash.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/JSZip-2.5.0/jszip.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/pdfmake-0.1.18/build/pdfmake.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/pdfmake-0.1.18/build/vfs_fonts.js" type="text/javascript"></script>
@@ -1422,6 +1443,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <script src="/static/assets/global/plugins/datatables/Select-1.1.0/js/dataTables.select.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/Editor-1.5.3/js/dataTables.editor.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/Editor-1.5.3/js/editor.bootstrap.min.js" type="text/javascript"></script>
+<script src="/static/assets/global/plugins/datatables/Buttons-1.1.0/js/buttons.colVis.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/jquery.twbsPagination.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/bootstrap-select/bootstrap-select.min.js" type="text/javascript"></script>
 <script src="/static/assets/global/plugins/datatables/Editor-1.5.3/js/fields.js" type="text/javascript"></script>
@@ -1439,6 +1461,8 @@ License: You must have a valid license purchased only from themeforest(the above
 <script type="text/javascript" src="/static/assets/global/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script type="text/javascript" src="/static/assets/global/plugins/select2/select2.min.js"></script>
 <script type="text/javascript" src="/static/assets/global/plugins/jquery-multi-select/js/jquery.multi-select.js"></script>
+<script type="text/javascript" src="/static/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript" src="/static/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
 
 
 <!-- END CORE PLUGINS -->
@@ -1448,6 +1472,7 @@ License: You must have a valid license purchased only from themeforest(the above
 <script src="/static/assets/admin/layout/scripts/quick-sidebar.js" type="text/javascript"></script>
 <script src="/static/assets/admin/layout/scripts/demo.js" type="text/javascript"></script>
 <script src="/static/assets/admin/pages/scripts/components-dropdowns.js"></script>
+<script src="/static/assets/admin/pages/scripts/components-pickers.js"></script>
 
 
 

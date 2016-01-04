@@ -34,6 +34,8 @@ class Xuexiao(db_models.Model):
     class Meta:
         verbose_name = u'学校'
 
+    edit_field_names = [u'xxmc',u'xxdz',u'xzxm',u'jxny',u'lxdh',u'dzyx',u'xxbbm',u'szdmzsx']
+
 class Nianji(db_models.Model):
     njmc = db_models.CharField(max_length=30,verbose_name=u"年级名称")
     order = db_models.IntegerField(default=0,verbose_name=u'年级序号')
@@ -62,13 +64,25 @@ class Nianji(db_models.Model):
     def get_xuexiao(self):
         return self.xx
 
+    @classmethod
+    def do_action_shengji(cls,request):
+        user = request.user
+        user.xx.nianji_set.get(order=4).banji_set.update(nj=None)
+        user.xx.nianji_set.get(order=3).banji_set.update(nj=user.xx.nianji_set.get(order=4))
+        user.xx.nianji_set.get(order=2).banji_set.update(nj=user.xx.nianji_set.get(order=3))
+        user.xx.nianji_set.get(order=1).banji_set.update(nj=user.xx.nianji_set.get(order=2))
+        return {}
+
+    field_names = [u'njmc',u'order']
+    edit_field_names = [u'njmc',u'order']
+
 
 class Banji(db_models.Model):
     bh = db_models.CharField(max_length=15,blank=True,verbose_name=u"班级号")
     bj = db_models.CharField(max_length=255,verbose_name=u"班级名称")
     jbny = db_models.DateField(verbose_name=u"建班日期")
-    bzrgh = db_models.ForeignKey(User,blank=True,null=True,verbose_name=u"班主任",related_name='bzrgh_to_account')
-    bzxh = db_models.ForeignKey(User,null=True,blank=True,verbose_name=u"班长",related_name='bzxh_to_account')
+    bzrgh = sms_fields.MyAjaxTreeForeignKey(u'Account',blank=True,null=True,verbose_name=u"班主任",related_name=u'bzrgh_to_account') #db_models.ForeignKey
+    bzxh = sms_fields.MyAjaxTreeForeignKey(u'Xuesheng',null=True,blank=True,verbose_name=u"班长",related_name='bzxh_to_account')
     bjrych = db_models.TextField(verbose_name=u"班级荣誉称号",blank=True)
     xz = db_models.IntegerField(verbose_name=u"学制",default=4)
     bjlxm = db_models.ForeignKey(com_models.zxxbjlx,null=True,blank=True,verbose_name=u"班级类型")
@@ -78,6 +92,8 @@ class Banji(db_models.Model):
     nj = db_models.ForeignKey(Nianji,blank=True,null=True,verbose_name=u"所属年级")
     order = db_models.IntegerField(default=0,verbose_name=u'班级序号')
 
+    edit_field_names = [u'bh',u'bj',u'jbny',u'bzrgh',u'bzxh',u'nj']
+    search_field_names = [u'nj']
     class Meta:
         verbose_name = u"班级"
 
@@ -106,6 +122,11 @@ class Banji(db_models.Model):
 class Object(db_models.Model):
     text = db_models.CharField(max_length=100,verbose_name=u'管理对象名')
     path = db_models.CharField(max_length=100,verbose_name=u'完整路径')
+
+    edit_field_names = [u'text',u'path']
+
+    def __unicode__(self):
+        return u'%s'%self.text
 
 class NavigatorManager(db_models.Manager):
     def objects(self):
@@ -220,18 +241,28 @@ class Action(db_models.Model):
 
 class GroupAction(db_models.Model):# 更名为GroupPostionAction
     group = db_models.ForeignKey(Group,verbose_name=u'执行该操作的角色')
-    navigator = sms_fields.TreeForeignKey(Navigator,verbose_name=u'操作对象')
+    navigator = sms_fields.TreeForeignKey(Navigator,verbose_name=u'在导航中的位置')
     action = db_models.ForeignKey(Action,verbose_name=u'执行的操作')
     object = db_models.ForeignKey(Object,verbose_name=u'操作对象')
     layout = db_models.CharField(max_length=100,verbose_name=u'页面布局文件',null=True,blank=True)
 
 
-    edit_field_names = [u'group',u'navigator',u'action',u'object',layout]
+    edit_field_names = [u'group',u'navigator',u'action',u'object',u'layout']
+    search_field_names = [u'group',u'navigator',u'action',u'object']
 
     class Meta:
         unique_together = ((u'group',u'object',u'action'),)
         ordering = [u'group__id',u'object__id',u'action__id']
 
+    @classmethod
+    def searchforeignkey_navigator(cls,request,records):
+        value = request.POST.get(u'navigator',None)
+        if value:
+            try:
+                records = records.filter(navigator__j_id=u'%s'%value)
+            except:
+                pass
+        return records
 
 class GroupBaseMetaClass(type):
     def __new__(cls, name, bases, attrs):
@@ -294,7 +325,7 @@ class Profile(object):
     __metaclass__ = ProfileBase
 
 class MyProfile(Profile):
-    sfzjh = db_models.CharField(max_length=30,verbose_name=u"身份证号码",unique=True)
+    sfzjh = sms_fields.MySfzjhCharField(max_length=30,verbose_name=u"身份证号码",unique=True)
     xbm = db_models.ForeignKey(com_models.xb,verbose_name=u"性别",blank=True,null=True)
     mzm = db_models.ForeignKey(com_models.gbmz,verbose_name=u"民族",blank=True,null=True)
     jkzkm = db_models.ForeignKey(com_models.gbjkzk,verbose_name=u"健康状况",blank=True,null=True)
@@ -311,6 +342,38 @@ class MyProfile(Profile):
     reset_password = db_models.CharField(blank=True,null=True,max_length=300)
 
     REQUIRED_FIELDS = [u"email",u"sfzjh"]
+
+    @classmethod
+    def ajax_tree_items(cls,request,role,field):
+        records = cls.filter(request)
+        parent = request.POST.get(u'parent',u'#')
+        result = []
+        if parent==u'#':
+            exsiteds = []
+            for record in records:
+                try:
+                    xing = record.first_name[0]
+                except:
+                    continue
+                if exsiteds.count(xing)==0:
+                    exsiteds.append(xing)
+                    result.append({
+                        u'id' : xing,
+                        u'text' : xing,
+                        u'children':True
+                    })
+        else:
+            records = records.filter(first_name__startswith=parent)
+            for record in records:
+                result.append({
+                    u'id' : record.id,
+                    u'text' : record.first_name
+                })
+
+        return result
+
+    def __unicode__(self):
+        return u'%s'%self.first_name
 
 
 
@@ -335,7 +398,15 @@ class Config(User):
         proxy = True
 
     field_names = [u'id',u'first_name',u'username',u'email',u'sfzjh',u'is_superuser',u'is_active',u'is_staff',u'date_joined',u'last_login',u'groups',u'xx']
-    edit_field_names = [u'id',u'first_name',u'username',u'email',u'sfzjh',u'is_superuser',u'is_active',u'is_staff',u'date_joined',u'last_login',u'groups',u'xx']
+    edit_field_names = [u'first_name',
+                        u'username',
+                        {
+                            u'field_name':u'email',
+                            u'editable' : False,
+                            u'unique' : True
+                        },
+                        u'sfzjh',
+                        u'is_superuser',u'is_active',u'is_staff',u'date_joined',u'last_login',u'groups',u'xx']
     search_field_names = [u'first_name',u'username',u'email',u'sfzjh',u'is_superuser',u'is_active',u'is_staff',
         {
             u'search_class' : sms_base.SearchForeignKey3,

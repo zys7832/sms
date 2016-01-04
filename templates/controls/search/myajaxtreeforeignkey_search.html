@@ -1,0 +1,73 @@
+<div class="form-group">
+    <label id='title' class="col-md-3 control-label">{{ field.verbose_name }}</label>
+
+    <div class="col-md-9">
+        <div class="input-group col-md-12">
+            <input id="tree_input_{{ field.name }}" class="form-control" type="text" placeholder="" readonly>
+            <span class="input-group-btn">
+                <button class="btn default date-reset" type="button"><i class="fa fa-times"></i></button>
+            </span>
+            <input id="tree_input_hidden_{{ field.name }}" type="hidden" name="{{ field.name }}"/>
+        </div>
+    </div>
+    <div id="tree_{{ field.name }}" style="left:234px;display:block;position:absolute;border:1px solid grey;height:200px;width:500px;overflow:auto;background-color:white">
+         <div id="tree_content_{{ field.name }}" class="tree-demo"></div>
+    </div>
+</div>
+
+    <script type="text/javascript">
+        $(".date-reset").click(function(event){
+            $("#tree_content_{{ field.name }}").jstree("deselect_all")
+            $("#tree_input_{{ field.name }}").val("")
+            $("#tree_input_hidden_{{ field.name }}").val("")
+        })
+
+        $("#tree_content_{{ field.name }}").jstree({
+            "core": {
+                "themes": {
+                    "responsive": false
+                },
+                // so that create works
+                "check_callback": true,
+                'data': {
+                        'url' : function (node) {
+                          return '{{ ajax_url | safe}}';
+                        },
+                        'type':'post',
+                        'data' : function (node) {
+                          return { 'parent' : node.id,'level':node.parents.length };
+                        }
+                }
+            }
+        }).on('select_node.jstree', function (e, data) {
+            $("#tree_input_{{ field.name }}").val(data.node.text)
+            $("#tree_input_hidden_{{ field.name }}").val(data.node.id)
+            $('#tree_{{ field.name }}').hide()
+        })
+
+        $("#tree_input_{{ field.name }}").click(function (event) {
+            var
+                    $tree_input = $("#tree_input_{{ field.name }}"),
+                    $gree_input_offset = $tree_input.offset(),
+                    $tree = $("#tree_{{ field.name }}"),
+                    $tree_input_offset = $tree_input.offset(),
+                    $group = $tree_input.parents('.form-group'),
+                    $group_offset = $group.offset(),
+                    tree_left = $tree_input.offset().left - $group_offset.left + 11
+
+            $tree.toggle().css("zIndex", 20000)
+            $tree.css({
+                left: tree_left + 'px',
+                top: $tree_input_offset.top + 'px',
+                width: $tree_input.css('width')
+            })
+            $("#tree_content_{{ field.name }}").jstree()
+            return false
+        })
+        $("#tree_{{ field.name }}").click(function (event) {
+            return false
+        })
+        $("body").click(function (event) {
+            $('#tree_{{ field.name }}').hide()
+        })
+    </script>

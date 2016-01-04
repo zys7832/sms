@@ -1,0 +1,1 @@
+{ extend: "copy", text: 'copy' }

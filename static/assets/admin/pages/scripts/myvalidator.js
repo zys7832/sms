@@ -86,4 +86,16 @@
 			}, 
 			"请输入正确的身份证号码。"
 	);
+
+    function DateTime(value){
+        var pattern = /^(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9]$/;
+        return pattern.test(value)
+    }
+
+    jQuery.validator.addMethod("datetime",
+			function(value, element) {
+				return this.optional(element) || DateTime(value);
+			},
+			"请输入形如[2000-01-01 00：00：00]日期时间格式"
+	);
 }(jQuery));
