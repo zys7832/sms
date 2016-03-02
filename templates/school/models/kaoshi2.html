@@ -1,0 +1,200 @@
+<div class="tiles">
+    <div class="tile action action-add bg-green-turquoise">
+        <div class="corner">
+        </div>
+        <div class="check">
+        </div>
+        <div class="tile-body">
+            <i class="fa fa-plus"></i>
+        </div>
+    </div>
+
+    <div class="tile action action-edit bg-green-turquoise">
+        <div class="tile-body">
+            <i class="fa fa-pencil"></i>
+        </div>
+    </div>
+
+    <div class="tile action action-delete bg-green-turquoise">
+        <div class="tile-body">
+            <i class="fa fa-minus"></i>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var myeditor
+    $(function () {
+        var
+                $tiles = $(".tiles"),
+                $add = $tiles.find(".tile.action-add"),
+                $edit = $tiles.find(".tile.action-edit"),
+                $delete = $tiles.find(".tile.action-delete"),
+                editor, validater,datas,current_row=0;
+        editor = new $.fn.dataTable.Editor({
+            ajax: "/action/{{ model_name }}/{{ role_name }}/",
+            idSrc: "id",
+            fields: [
+                {% for edit in edits %}
+                    {% if forloop.last %}
+                        {{ edit.render | safe }}
+                    {% else %}
+                        {{ edit.render | safe }},
+                    {% endif %}
+                {% endfor %}
+            ]
+        });
+
+        var validater = $(editor.dom.form).validate({
+            rules: {
+                {% for edit in edits %}
+                    {% if forloop.last %}
+                        '{{ edit.rule_name }}': {{ edit.validate_rules | safe }}
+                                {% else %}
+                                '{{ edit.rule_name }}':{{ edit.validate_rules | safe }},
+                    {% endif %}
+                {% endfor %}
+    }
+    }),
+
+    edit_fields = [
+        {% for edit in edits %}
+            {% if not edit.editable %}
+                {% if forloop.last %}
+                    '{{ edit.name }}'
+                {% else %}
+                    '{{ edit.name }}',
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    ]
+
+    editor.on('open', function (e, mode, action) {
+        for (var index in edit_fields) {
+            editor.field(edit_fields[index]).rules(action)
+        }
+        validater.resetForm()
+    });
+
+
+    editor.on('preSubmit', function (e, o, action) {
+        if (action !== 'remove') {
+            return $(editor.dom.form).valid()
+        }
+    })
+
+    myeditor = editor
+
+    $add.click(function () {
+        editor.buttons({
+            label: '增加考试',
+            fn: function () {
+                editor.submit()
+            }
+        }).create()
+    })
+
+    $edit.click(function () {
+        var values = {},field,fields = editor.fields()
+        for (var index in fields){
+            field = fields[index].split('.')[0]
+            values[fields[index]] = datas[current_row][field]
+        }
+        editor.buttons({
+            label: '保存',
+            fn: function () {
+                editor.submit()
+            }
+        }).edit(datas[current_row].id).set(values)
+    })
+
+    $delete.click(function () {
+        bootbox.confirm('确定删除该次考试？',function(result){
+            var key = 'data[' + datas[current_row].id + '][id]',mydata={};
+
+            mydata[key] = datas[current_row].id
+            mydata['action'] = "remove"
+            if(result){
+                $.ajax({
+                    url:'/action/{{ model_name }}/{{ role_name }}/',
+                    type:'post',
+                    data :mydata
+                })
+            }
+        })
+    })
+
+    var columns = [
+        {% for column in columns %}
+            {
+                name : '{{ column.field.name }}',
+                verbose_name : '{{ column.field.verbose_name }}'
+            }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+
+    var generator_tile = function(record,index){
+        var
+                caption = columns[0].verbose_name,
+                value = record[columns[0].name],
+                html,
+                is_first = index==current_row?'selected':'';
+
+        value = typeof(vale)==='object'?value.name:value
+        html = '<div class="tile '+ is_first +' bg-green-turquoise" index="' + index +'" >'
+                   +'<div class="corner"></div>'
+                   +'<div class="check"></div>'
+                   +'<div class="tile-body">'
+                        +'<h4>' + value + '</h4>'
+        length = columns.length>3?3:columns.length;
+        for(var ind=1;ind<length;ind++){
+            caption = columns[ind].verbose_name
+            value = record[columns[ind].name]
+            value = typeof(value)==='object'?value.name:value
+            html += '<p>' + value + '</p>'
+        }
+        html += '</div></div>'
+        return $(html)
+    }
+
+    var load_tiles = function(records){
+        var $tiles = $(".tiles"),$tile,
+            $actions = $(".tile.action");
+        $tiles.remove()
+        for (var index in records){
+           $tile = generator_tile(records[index],index)
+           $tiles.append($tile)
+           $tile.click(function(){
+                $tiles.find('.selected').toggleClass("selected")
+                $(this).toggleClass('selected')
+                current_row = parseInt($(this).attr("index"))
+           })
+        $tiles.append($actions)
+        }
+    }
+
+    $.ajax({
+        url : '/datas/{{ model_name }}/{{ role_name }}/',
+        type : 'post',
+        success : function(response){
+            datas = response.data
+            load_tiles(response.data)
+            /*var $tiles = $(".tiles"),$tile;
+            for (var index in response.data){
+                $tile = generator_tile(response.data[index],index)
+                $tiles.append($tile)
+                $tile.click(function(){
+                    $tiles.find('.selected').toggleClass("selected")
+                    $(this).toggleClass('selected')
+                    current_row = parseInt($(this).attr("index"))
+                })
+                $(".tile.action").appendTo($tiles)
+                datas = response.data
+            }*/
+        }
+    })
+
+
+
+    })
+</script>

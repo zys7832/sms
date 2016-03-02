@@ -83,7 +83,16 @@
         },
 
         set: function (conf, val) {
-            $('select', conf._input).attr('value', val);
+            if(typeof val==='object'){
+                var key = conf.data.split(".")[1]
+                val = val[key]
+            }
+
+            if (val!=='')
+                $('select', conf._input).select2().val(val).trigger('change') //.attr('value', val);
+            else
+                $('select', conf._input).attr("value",val)
+
         },
 
         enable: function (conf) {
@@ -208,6 +217,7 @@
             if(val===''){
                val = false
             }
+            $('input',conf._input).removeAttr('checked')
             $('input[value=' + val + ']', conf._input).attr('checked', true);
         },
 

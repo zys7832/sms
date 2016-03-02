@@ -20,6 +20,25 @@ class BaseField(object):
     def data(self,obj):
         return getattr(obj,self.name)
 
+class ColumnGeneratorField(object):
+    def __init__(self,request,name,verbose_name):
+        self.request = request
+        self.__name = name
+        self.__verbose_name = verbose_name
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def verbose_name(self):
+        return self.__verbose_name
+
+    def data(self,obj):
+        return getattr(obj,self.name)
+
+    def render(self):
+        return json.dumps({u"data":self.name})
 
 class ColumnField(BaseField):
     def render(self):
@@ -416,11 +435,14 @@ class SearchForeignKey3(SearchForeignKey2):
                 method = getattr(self.main_model,u'searchforeignkey_%s'%self.field_name1)
                 records = method(self.request,records)
             except:
-                field = self.main_model._meta.get_field_by_name(self.field_name3)[0]
-                if (field):
-                    q = dmodels.Q()
-                    q.children.append((u'%s__pk'%field.name,value3))
-                    records = records.filter(q)
+                try:
+                    field = self.main_model._meta.get_field_by_name(self.field_name3)[0]
+                    if (field):
+                        q = dmodels.Q()
+                        q.children.append((u'%s__pk'%field.name,value3))
+                        records = records.filter(q)
+                except:
+                    pass
 
         return records
 

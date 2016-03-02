@@ -81,7 +81,7 @@ class Banji(db_models.Model):
     bh = db_models.CharField(max_length=15,blank=True,verbose_name=u"班级号")
     bj = db_models.CharField(max_length=255,verbose_name=u"班级名称")
     jbny = db_models.DateField(verbose_name=u"建班日期")
-    bzrgh = sms_fields.MyAjaxTreeForeignKey(u'Account',blank=True,null=True,verbose_name=u"班主任",related_name=u'bzrgh_to_account') #db_models.ForeignKey
+    bzrgh = sms_fields.MyAjaxTreeForeignKey(u'Jiaozhigong',blank=True,null=True,verbose_name=u"班主任",related_name=u'bzrgh_to_account') #db_models.ForeignKey
     bzxh = sms_fields.MyAjaxTreeForeignKey(u'Xuesheng',null=True,blank=True,verbose_name=u"班长",related_name='bzxh_to_account')
     bjrych = db_models.TextField(verbose_name=u"班级荣誉称号",blank=True)
     xz = db_models.IntegerField(verbose_name=u"学制",default=4)
@@ -385,12 +385,20 @@ class Xuesheng(User):
     class Meta:
         proxy = User
 
+    @classmethod
+    def filter(cls,request):
+        return cls.objects.filter(xx=request.user,bj__isnull=False)
+
     def get_nianji(self):
         return self.bj.nj
 
 class Jiaozhigong(User):
     class Meta:
         proxy = User
+
+    @classmethod
+    def filter(cls,request):
+        return cls.objects.filter(xx=request.user.xx,bj__isnull=True)
 
 
 class Config(User):

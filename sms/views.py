@@ -174,6 +174,7 @@ def items(request,path,role):
     parent_id = request.GET.get(u'parent_id')
     child_model_name = path.rsplit(u'.')[-1].lower()
     all_records = model.objects.all()
+    records = all_records
     if parent_model_path and parent_id:
         try:
             parent_model = loader.load_member(request,parent_model_path,role)
