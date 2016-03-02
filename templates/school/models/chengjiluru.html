@@ -1,0 +1,289 @@
+<style>
+
+</style>
+<div class="portlet box green">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-gift"></i>Form Actions On Bottom
+        </div>
+    </div>
+    <div class="portlet-body form">
+        <!-- BEGIN FORM-->
+        <form action="" class="form-horizontal" onsubmit='return false'>
+            <div class="form-body">
+                <div class="form-group">
+                    <label class="col-md-3 control-label">考试</label>
+                    <div class="col-md-4">
+                        <select name="kaoshi" class="form-control" id="kaoshi">
+                            <option value="" selected>请选择考试</option>
+                            {% for ks in kaoshi %}
+                                <option value="{{ ks.id }}">{{ ks }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">科目</label>
+                    <div class="col-md-4">
+                        <select name="kemu" class="form-control" id="kemu">
+                            <option value="" selected>请选择考试科目</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">考场</label>
+                    <div class="col-md-4">
+                        <select name="kaochang" class="form-control" id="kaochang">
+                            <option value="" selected>请选择考场</option>
+                            {% for school in schools %}
+                                <option value="{{ school.id }}">{{ school.xxmc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">考号</label>
+                    <div class="col-md-4">
+                        <select name="kaosheng" class="form-control" id="kaosheng">
+                            <option value="" selected>请选择考号</option>
+                            {% for school in schools %}
+                                <option value="{{ school.id }}">{{ school.xxmc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+					<label class="col-md-3 control-label">成绩</label>
+					<div class="col-md-4">
+					    <div class="input-group">
+					    <input type="text" class="form-control" placeholder="Enter text" name="chengji" id="chengji">
+					        <span class="input-group-addon" id="toggle_calc">
+								<i class="fa fa-building"></i>
+							</span>
+					    </div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-5 col-md-offset-3" id="calc" style="display:none">
+					    <div class="row">
+					        <div class="col-sm-12">
+                                <a class="icon-btn">1</a>
+                                <a class="icon-btn">2</a>
+                                <a class="icon-btn">3</a>
+                                <a class="icon-btn">4</a>
+                                <a class="icon-btn">5</a>
+                                <a class="icon-btn">6</a>
+                                <a class="icon-btn">7</a>
+                                <a class="icon-btn">8</a>
+                                <a class="icon-btn">9</a>
+                                <a class="icon-btn">0</a>
+                                <a class="icon-btn">.</a>
+                                <a class="icon-btn">+</a>
+                                <a class="icon-btn">-</a>
+                                <a class="icon-btn">=</a>
+                                <a class="icon-btn">C</a>
+                            </div>
+					    </div>
+					</div>
+				</div>
+            </div>
+        </form>
+        <!-- END FORM-->
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    var
+            $kaoshi = $("#kaoshi"),
+            $kemu = $("#kemu"),
+            $kaochang = $("#kaochang"),
+            $kaosheng = $("#kaosheng") ,
+            $chengji = $("#chengji"),
+            is_init = true,
+            $max_chengji = 100;
+
+    function add_items($obj,items,place_holder){
+        $obj.append('<option value="">' + place_holder + '</option>')
+        for(var index in items){
+            $obj.append('<option value="' + items[index].id + '">' + items[index].name + "</option>")
+        }
+    }
+
+    function add_kaohao_items($obj,items,place_holder){
+        $obj.append('<option value="">' + place_holder + '</option>')
+        for(var index in items){
+            $obj.append('<option value="' + items[index].id + '" old_chengji="'+ items[index].chengji +'">' + items[index].name + "</option>")
+        }
+    }
+    $kaoshi.change(function(){
+        $kemu.find("option").remove()
+        $kaochang.find("option").remove()
+        $kaosheng.find("option").remove()
+        $chengji.val("")
+        if ($kaoshi.val()===''){
+            return
+        }
+        $.ajax({
+            url : '/action/{{ model_name }}/{{ role_name }}/',
+            type : 'post',
+            data : {
+                action : 'kemubiao',
+                kaoshi_id : $kaoshi.val()
+            },
+            success : function(result){
+                add_items($kemu,result,'选择考试科目')
+            }
+        })
+
+        $.ajax({
+            url : '/action/{{ model_name }}/{{ role_name }}/',
+            type : 'post',
+            data : {
+                action : 'kaochangbiao',
+                kaoshi_id : $kaoshi.val()
+            },
+            success : function(result){
+                add_items($kaochang,result,'选择考场')
+            }
+        })
+    })
+    $kemu.change(function(){
+        if($kemu.val()===''){
+            return;
+        }
+        $.ajax({
+            url : '/action/{{ model_name }}/{{ role_name }}/',
+            type : 'post',
+            data : {
+                'action' : 'kemuzuigaofen',
+                'kemu_id' : $kemu.val()
+            },
+            success : function(result){
+                max_chengji = result.kemuzuigaofen
+                $kaochang.get(0).selectedIndex=1
+                $kaochang.trigger("change")
+            }
+        })
+
+    })
+
+    $kaochang.change(function(){
+        $kaosheng.find("option").remove()
+        $chengji.val("")
+        if ($kaochang.val()===''){
+            return
+        }
+        $.ajax({
+            url : '/action/{{ model_name }}/{{ role_name }}/',
+            type : 'post',
+            data : {
+                action : 'kaohaobiao',
+                kaoshi_id : $kaoshi.val(),
+                kemu_id : $kemu.val(),
+                kaochang_id : $kaochang.val()
+            },
+            success : function(result){
+                add_kaohao_items($kaosheng,result,'请选择考生')
+                $kaosheng.get(0).selectedIndex = 1
+                $kaosheng.trigger("change")
+                $chengji[0].focus()
+            }
+        })
+    })
+
+    $kaosheng.change(function(event){
+        $chengji.val($kaosheng.find("option[value=" + $kaosheng.val() + "]").attr("old_chengji"))
+        $chengji.focus()
+        $chengji.select()
+        is_init = true
+    })
+
+    function xiayiweikaosheng(){
+        var selectedIndex = $kaosheng.get(0).selectedIndex;
+        if (selectedIndex==$kaosheng.find('option').length-1){
+            if($kaochang.get(0).selectedIndex==$kaochang.find('option').length-1){
+                alert("录入完成，该哪去哪去吧!")
+           } else {
+                $kaochang.get(0).selectedIndex = $kaochang.get(0).selectedIndex+1
+                $kaochang.trigger("change")
+           }
+        } else {
+            $kaosheng.get(0).selectedIndex = selectedIndex + 1
+            $kaosheng.trigger("change")
+        }
+
+    }
+    var enter = false;
+    $chengji.keypress(function(event){
+        if (event.key==='Enter'|| enter){
+            enter = false
+            var old_chengji = parseFloat($kaosheng.find('option[value='+$kaosheng.val()+']').attr('old_chengji')),
+                new_chengji = parseFloat($chengji.val());
+
+            if (!(new_chengji>=0 && new_chengji<=max_chengji)){
+                alert('请输入一个0--'+max_chengji+'之间的值！')
+                $chengji[0].focus()
+                $chengji.val("")
+                return;
+            }
+
+            if (old_chengji==new_chengji){
+                xiayiweikaosheng()
+                return;
+            }
+
+            $.ajax({
+                url : '/action/{{ model_name }}/{{ role_name }}/',
+                type : 'post',
+                data : {
+                    action : 'save_chengji',
+                    kaoshi_id : $kaoshi.val(),
+                    kemu_id : $kemu.val(),
+                    kaosheng_id : $kaosheng.val(),
+                    chengji : $chengji.val(),
+                    selected : $kaosheng.get(0).selectedIndex
+                },
+                success : function(result){
+                    if (result.message!==0){
+                        $kaosheng.get(0).selectedIndex = result.selected
+                        alert(result.message)
+                        $kaosheng.trigger("change")
+                        return
+                    }
+                    $($kaosheng[0].options[result.selected]).attr("old_chengji",result.chengji)
+                    xiayiweikaosheng()
+                }
+            })
+        }
+    }).focus(function(){
+        is_init = true
+    })
+
+    $(".icon-btn").not(':contains("=")').not(":contains('C')").click(function(){
+        var
+            old_val = is_init?'':$chengji.val();
+            old_val += $(this).html()
+        is_init = false
+        $chengji.val(old_val)
+    })
+    $(".icon-btn:contains('=')").click(function(){
+        $chengji.val(eval($chengji.val()))
+        enter=true
+        $chengji.trigger("keypress")
+    })
+    $(".icon-btn:contains('C')").click(function(){
+        var old_value = $chengji.val()
+        if(old_value===""){
+            return
+        }
+        old_value = old_value.slice(0,old_value.length-1)
+        $chengji.val(old_value)
+    })
+
+    $("#toggle_calc").click(function(){
+        $("#calc").toggle()
+        $chengji.attr("disabled",$("#calc").css("display")==='block')
+    })
+})
+</script>
