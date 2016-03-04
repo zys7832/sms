@@ -9,6 +9,7 @@ class BaseField(object):
     def __init__(self,request,field):
         self.request = request
         self.field = field
+        self.direction = u''
     @property
     def name(self):
         return self.field.name
@@ -19,6 +20,15 @@ class BaseField(object):
 
     def data(self,obj):
         return getattr(obj,self.name)
+
+    def ordering(self):
+        if self.name in self.field.model._meta.ordering:
+            self.direction = u'asc'
+            return True
+        elif u'-%s'%self.name in self.field.model._meta.ordering:
+            self.direction = u'desc'
+            return True
+        return False
 
 class ColumnGeneratorField(object):
     def __init__(self,request,name,verbose_name):

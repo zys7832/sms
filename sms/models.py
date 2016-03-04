@@ -89,6 +89,8 @@ class MetroModelAbstract(MetroModelBase):
             u'role_name' : role_name
         })
 
+
+
     #显示列名
     field_names = []
     #编辑列名
@@ -123,13 +125,6 @@ class MetroModelAbstract(MetroModelBase):
                 del params[u'column_class']
                 params[u'request'] = request
                 result.append(column_class(**params))
-        return result
-
-        result = []
-        for field in columns:
-            if field.name==u'id':
-                continue
-            result.append(getattr(base,u'Column%s'%field.__class__.__name__)(request,field))
         return result
 
     #将编辑列名转换为对应base.py中对应的对象
@@ -270,31 +265,33 @@ class MetroModelAbstract(MetroModelBase):
                 if match_obj:
                     math(key,value,match_obj)
 
+        return result
+
     #输出数据
     @classmethod
     def datas(cls,request):
-        records = cls.objects.all()
+
+        post_data = cls.analysis_post(request)
+
+        records = cls.filter(request)
+        total_count = records.count()
 
         for field in cls.search_fields(request):
             records = field.search(records)
 
-        number_of_page = int(request.POST.get(u'numberOfPage',100))
-        current_page = int(request.POST.get(u'currentPage',1))
-        count = records.count()
-        if number_of_page==-1:
-            number_of_page = 1 if count==0 else count
-            current_page = 1
+        filter_count = records.count()
 
-        result = cls.rows(request,records[(current_page-1)*number_of_page:current_page*number_of_page])
 
-        result[u'currentPage'] = current_page
-        total_pages,r = divmod(count,number_of_page)
-        if r>0:
-            total_pages += 1
+        length = int(post_data[u'length'])
+        start = int(post_data[u'start'])
+        if length<>-1:
+            result = cls.rows(request,records[start:(start+length)])
+        else :
+            result = cls.rows(request,records)
 
-        result[u'draw'] = total_pages
-        result[u'recordsFiltered'] = count
-        result[u'recordsTotal'] = count
+        result[u'draw'] = post_data[u"draw"]
+        result[u'recordsFiltered'] = filter_count
+        result[u'recordsTotal'] = total_count
         return result
 
     #数据表操作接口，在视图中根据参数调用add,edit,delete执行具体操作

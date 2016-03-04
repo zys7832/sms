@@ -33,6 +33,7 @@ class Xuexiao(db_models.Model):
 
     class Meta:
         verbose_name = u'学校'
+        ordering = [u'xxmc',u'-xxdz']
 
     edit_field_names = [u'xxmc',u'xxdz',u'xzxm',u'jxny',u'lxdh',u'dzyx',u'xxbbm',u'szdmzsx']
 
@@ -381,6 +382,14 @@ class Account(User):
     class Meta:
         proxy = User
 
+    @classmethod
+    def filter(cls,request):
+        if request.user.xx:
+            records = cls.objects.filter(xx=request.user.xx)
+        else:
+            records = cls.objects.all()
+        return records
+
 class Xuesheng(User):
     class Meta:
         proxy = User
@@ -404,6 +413,14 @@ class Jiaozhigong(User):
 class Config(User):
     class Meta:
         proxy = True
+
+    @classmethod
+    def filter(cls,request):
+        if request.user.xx:
+            records = cls.objects.filter(xx=request.user.xx)
+        else:
+            records = cls.objects.all()
+        return records
 
     field_names = [u'id',u'first_name',u'username',u'email',u'sfzjh',u'is_superuser',u'is_active',u'is_staff',u'date_joined',u'last_login',u'groups',u'xx']
     edit_field_names = [u'first_name',

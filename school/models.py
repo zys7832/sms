@@ -38,7 +38,7 @@ class Kecheng(db_models.Model):
     search_field_names = [u'kcmc',u'kcdjm',u'skfsm']
 
 class Xiaoli(db_models.Model):
-    start = db_models.DateField(verbose_name=u'学期开是时间')
+    start = db_models.DateField(verbose_name=u'学期开始时间')
     end = db_models.DateField(verbose_name=u'学期结束时间')
     work_days = db_models.IntegerField(verbose_name=u'工作天数',default=0)
     holiday_days = db_models.IntegerField(verbose_name=u'放假天数',default=0)
@@ -93,6 +93,10 @@ class Jiaoxuejihua(db_models.Model):
 
     def __unicode__(self):
         return u"%s-%s-%s"%(self.skxqm,self.sknj,self.kch)
+
+    @classmethod
+    def filter(cls,request):
+        return cls.objects.filter(skxqm__current_term=True)
 
 # 教师分工表
 class Jiaoshifengong(db_models.Model):
