@@ -93,7 +93,7 @@ class Banji(db_models.Model):
     nj = db_models.ForeignKey(Nianji,blank=True,null=True,verbose_name=u"所属年级")
     order = db_models.IntegerField(default=0,verbose_name=u'班级序号')
 
-    edit_field_names = [u'bh',u'bj',u'jbny',u'bzrgh',u'bzxh',u'nj']
+    edit_field_names = [u'bh',u'bj',u'jbny',u'bzrgh',u'bzxh',u'nj',u'order']
     search_field_names = [u'nj']
     class Meta:
         verbose_name = u"班级"

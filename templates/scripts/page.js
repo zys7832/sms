@@ -96,6 +96,11 @@ table = $("#example").DataTable({
             buttons : true
 });
 
+table.on( 'select', function ( e, dt, type, indexes ){
+            table.buttons( '.daorukaosheng' ).enable();
+        }).on( 'deselect', function ( e, dt, type, indexes ){
+            table.buttons( '.daorukaosheng' ).disable();
+        });
 
 new $.fn.dataTable.Buttons( table, {
         buttons: [
@@ -113,21 +118,10 @@ new $.fn.dataTable.Buttons( table, {
                 extend: 'collection',
                 text: '操作 <i class="fa fa-angle-down"></i>',
                 buttons: [
-                    {
-                        'text' : 'New',
-                        'extend' : 'create',
-                        'editor' : editor
-                    },
-                    {
-                        'text' : 'Edit',
-                        'extend' : 'edit',
-                        'editor' : editor
-                    },
-                    {
-                        'text' : 'Delete',
-                        'extend' : 'remove',
-                        'editor' : editor
-                    }
+                    {% for action in actions %}
+                        {{ action.render | safe }}{% if forloop.last %}{% else %},{% endif %}
+                    {% endfor %}
+
                 ]
             },
             {

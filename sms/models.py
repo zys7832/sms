@@ -274,6 +274,7 @@ class MetroModelAbstract(MetroModelBase):
         post_data = cls.analysis_post(request)
 
         records = cls.filter(request)
+
         total_count = records.count()
 
         for field in cls.search_fields(request):
@@ -281,6 +282,16 @@ class MetroModelAbstract(MetroModelBase):
 
         filter_count = records.count()
 
+        sorting = []
+        for index in range(len(post_data[u'orders'].keys())):
+            name = post_data[u'orders'][unicode(index)][u'name']
+            name = name.split(".")[0]
+            direction = post_data[u'orders'][unicode(index)][u'dir']
+            if direction == u'desc':
+                name = u'-' + name
+            sorting.append(name)
+
+        records = records.order_by(*sorting)
 
         length = int(post_data[u'length'])
         start = int(post_data[u'start'])

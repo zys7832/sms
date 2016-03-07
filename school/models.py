@@ -151,7 +151,6 @@ class Kaoshi(db_models.Model):
     kskssj = db_models.DateField(verbose_name=u'考试时间',default=datetime.datetime.now())
     sycks = db_models.ForeignKey("self",null=True,blank=True,verbose_name=u"上次考试")
     over = db_models.BooleanField(default=False,verbose_name=u'考试结束')
-    #kskm = db_models.ManyToManyField(Jiaoxuejihua,verbose_name=u'考试科目',blank=True,null=True)
     step = db_models.IntegerField(default=0)
     xx = db_models.ForeignKey(accounts_models.Xuexiao)
 
@@ -169,7 +168,7 @@ class Kaoshi(db_models.Model):
 
     @classmethod
     def do_action_daorukaosheng(cls,request):
-        kaoshi_id = int(request.GET.get("kaoshi_id"))
+        kaoshi_id = int(request.GET.get(u"kaoshi_id"))
         Kaosheng.objects.filter(kaoshi__pk=kaoshi_id).delete()
         kaoshi = cls.objects.get(pk=kaoshi_id)
 
